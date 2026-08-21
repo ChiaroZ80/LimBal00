@@ -1,0 +1,35 @@
+tabs:
+  config:
+    baudrate: ''
+    mode: Simulated
+    port: ''
+  graph:
+    general:
+      max_y: ''
+      min_y: ''
+      refresh_rate: '30'
+      visualization_group: Time Series
+      window_size: '100'
+      x_column: '1'
+      y1_color: Blue
+      y1_column: ''
+      y2_color: Red
+      y2_column: '3'
+      y3_color: Green
+      y3_column: ''
+      y4_color: Orange
+      y4_column: ''
+      y5_color: Magenta
+      y5_column: ''
+    group:
+      ts:
+        y1_marker: circle
+        y1_type: Line
+        y2_marker: circle
+        y2_type: Line
+        y3_marker: circle
+        y3_type: Line
+        y4_marker: circle
+        y4_type: Line
+        y5_marker: circle
+        y5_type: Line
