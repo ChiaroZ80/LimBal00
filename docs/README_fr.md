@@ -1,4 +1,4 @@
-# LIM Serial - Communication Série & Visualisation de Données
+# lim_bal - Communication Série & Visualisation de Données
 
 **README en :** [English](../README.md) | [Português](README_pt-br.md) | [Español](README_es.md) | [Deutsch](README_de.md) | [Français](README_fr.md)
 
@@ -6,11 +6,11 @@
 
 ## Aperçu
 
-LIM Serial est une application conviviale pour la communication série et la visualisation de données en temps réel. Connectez-vous à Arduino ou d'autres appareils série, collectez des données et créez des graphiques dynamiques avec des fonctionnalités de visualisation professionnelles. Disponible en 5 langues avec sauvegarde automatique des préférences.
+lim_bal est une application de bureau pour la communication série et la visualisation des données en temps réel. Connectez-vous à Arduino ou à d'autres appareils série, collectez des mesures numériques et créez des graphiques. L'interface est disponible en cinq langues.
 
-![LIM Serial Screenshot](shot.png)
+![lim_bal screenshot](shot.png)
 
-![LIM Serial Screenshot](shot_stacked.png)
+![lim_bal screenshot](shot_stacked.png)
 
 ## Fonctionnalités
 
@@ -24,6 +24,8 @@ LIM Serial est une application conviviale pour la communication série et la vis
 - Mode simulation intégré pour tester sans matériel
 - Détection automatique des ports avec actualisation en un clic
 - Compatibilité complète avec les débits de l'IDE Arduino (300-2000000 bps)
+- Débit par défaut : 9600 ; commandes rapides : SI, SIR, Zerar et Tara
+- Les commandes texte personnalisées sont envoyées avec CRLF
 
 ### 📊 **Visualisation de Données Professionnelle**
 - **Graphiques de Séries Temporelles** : Tracez jusqu'à 5 colonnes de données simultanément
@@ -38,6 +40,8 @@ LIM Serial est une application conviviale pour la communication série et la vis
 - **Sauvegarde Automatique** : Sauvegarde automatique optionnelle avec noms de fichiers horodatés
 - **Sécurité des Données** : Effacez les données avec invites de confirmation
 - **Tous les Paramètres Sauvegardés** : Les préférences sont automatiquement conservées entre les sessions
+- **Plot data** : Contrôle l'enregistrement et le tracé des mesures numériques dans Data
+- **Receive data** : Affiche chaque ligne reçue avec compteur et temps écoulé
 
 ## Premiers Pas
 
@@ -50,27 +54,33 @@ LIM Serial est une application conviviale pour la communication série et la vis
 # Installer les packages requis
 pip install matplotlib pyserial PyYAML
 
-# Télécharger et exécuter lim_bal
-cd limbal00
+# Cloner et exécuter LimBal00
+git clone https://github.com/ChiaroZ80/LimBal00.git
+cd LimBal00
 python lim_bal.py
 ```
 
 ### Premiers Pas
 1. **Langue** : Choisissez votre langue dans le menu Langue
-2. **Connexion** : Allez à l'onglet Configuration, sélectionnez votre port série et débit
-3. **Données** : Passez à l'onglet Données pour voir les données entrantes
-4. **Visualisation** : Utilisez l'onglet Graphique pour créer des graphiques à partir de vos données
+2. **Connexion** : Dans Configuration, sélectionnez le port et le débit puis connectez l'appareil
+3. **Réception** : Consultez les lignes et le temps écoulé dans Receive data
+4. **Données** : Activez Plot data pour enregistrer les mesures numériques dans Data
+5. **Visualisation** : Créez des graphiques ou envoyez des commandes depuis Graph
 
 ## Utilisation
 
 ### Onglet Configuration
 - **Mode** : Choisissez "Hardware" pour les appareils réels, "Simulated" pour les tests
 - **Port** : Sélectionnez votre port série (cliquez sur Actualiser pour mettre à jour la liste)
-- **Débit** : Définissez la vitesse de communication (correspondant aux paramètres de votre appareil)
-- **Connecter** : Cliquez pour commencer à recevoir des données
+- **Débit** : Définissez la vitesse (par défaut : 9600)
+- **Plot data** : Active ou désactive l'enregistrement des mesures numériques dans Data
+- **SI / SIR / Zerar / Tara** : Envoie la commande correspondante à l'appareil
+- **Send data** : Envoie du texte personnalisé suivi de CRLF
+- **Receive data** : Affiche les lignes avec compteur et secondes depuis la connexion
+- **Connecter / Déconnecter** : Démarre ou termine la connexion matérielle
 
 ### Onglet Données
-- **Voir les Données** : Visualisez les données entrantes en format tableau temps réel
+- **Voir les Données** : Consultez compteur, temps et mesures numériques lorsque Plot data est actif
 - **Sauvegarder les Données** : Exportez les données actuelles vers un fichier texte
 - **Charger les Données** : Importez des fichiers de données précédemment sauvegardés
 - **Effacer les Données** : Réinitialisez le jeu de données actuel (avec confirmation)
@@ -84,6 +94,8 @@ python lim_bal.py
 - **Personnaliser** : Développez "Afficher les Options Avancées" pour changer couleurs, marqueurs, taux de rafraîchissement
 - **Export** : Sauvegardez vos graphiques en images PNG
 - **Contrôle** : Pausez/reprenez les mises à jour temps réel à tout moment
+- **SI / SIR** : Envoie des commandes depuis l'onglet Graph
+- **Stop** : Envoie `@` avec CRLF ; la prochaine ligne n'est pas enregistrée dans Data, mais reste visible dans Receive data
 
 ### Menu Langue
 - **Changer de Langue** : Sélectionnez parmi 5 langues disponibles
@@ -95,10 +107,7 @@ python lim_bal.py
 Votre appareil série doit envoyer des données en format texte simple :
 
 ```
-# Ligne d'en-tête optionnelle
-timestamp voltage current temperature
-
-# Lignes de données (séparées par des espaces ou tabulations)
+# Lignes de données numériques (séparées par des espaces ou tabulations)
 1.0 3.3 0.125 25.4
 2.0 3.2 0.130 25.6
 3.0 3.4 0.122 25.2
@@ -107,7 +116,7 @@ timestamp voltage current temperature
 **Formats supportés :**
 - Colonnes séparées par des espaces ou tabulations
 - Nombres dans n'importe quelle colonne
-- Ligne d'en-tête optionnelle (sera détectée automatiquement)
+- Les lignes de protocole/état sans mesures ne sont pas ajoutées à Data
 - Streaming temps réel ou chargement de données par lots
 
 ## Dépannage
@@ -145,4 +154,4 @@ Développé par CBPF-LIM (Centre Brésilien de Recherche en Physique - Laboratoi
 
 ---
 
-**LIM Serial** - Communication série et visualisation de données professionnelles simplifiées.
+**lim_bal** - Communication série et visualisation des données.

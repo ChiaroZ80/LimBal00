@@ -1,4 +1,4 @@
-# LIM Serial - Serielle Kommunikation & Datenvisualisierung
+# lim_bal - Serielle Kommunikation & Datenvisualisierung
 
 **README in:** [English](../README.md) | [Português](README_pt-br.md) | [Español](README_es.md) | [Deutsch](README_de.md) | [Français](README_fr.md)
 
@@ -6,11 +6,11 @@
 
 ## Übersicht
 
-LIM Serial ist eine benutzerfreundliche Anwendung für serielle Kommunikation und Echtzeit-Datenvisualisierung. Verbinden Sie Arduino oder andere serielle Geräte, sammeln Sie Daten und erstellen Sie dynamische Diagramme mit professionellen Visualisierungsfeatures. Verfügbar in 5 Sprachen mit automatischem Speichern der Einstellungen.
+lim_bal ist eine Desktop-Anwendung für serielle Kommunikation und Echtzeit-Datenvisualisierung. Verbinden Sie Arduino oder andere serielle Geräte, erfassen Sie numerische Messwerte und erstellen Sie Diagramme. Die Oberfläche ist in fünf Sprachen verfügbar.
 
-![LIM Serial Screenshot](shot.png)
+![lim_bal screenshot](shot.png)
 
-![LIM Serial Screenshot](shot_stacked.png)
+![lim_bal screenshot](shot_stacked.png)
 
 ## Features
 
@@ -24,6 +24,8 @@ LIM Serial ist eine benutzerfreundliche Anwendung für serielle Kommunikation un
 - Integrierter Simulationsmodus zum Testen ohne Hardware
 - Automatische Port-Erkennung mit Ein-Klick-Aktualisierung
 - Vollständige Kompatibilität mit Arduino IDE Baudraten (300-2000000 bps)
+- Standard-Baudrate: 9600; Schnellbefehle: SI, SIR, Zerar und Tara
+- Benutzerdefinierte Textbefehle werden mit CRLF gesendet
 
 ### 📊 **Professionelle Datenvisualisierung**
 - **Zeitreihen-Diagramme**: Darstellung von bis zu 5 Datenspalten gleichzeitig
@@ -38,6 +40,8 @@ LIM Serial ist eine benutzerfreundliche Anwendung für serielle Kommunikation un
 - **Automatische Sicherung**: Optionale automatische Speicherung mit zeitgestempelten Dateinamen
 - **Datensicherheit**: Daten löschen mit Bestätigungsaufforderungen
 - **Alle Einstellungen gespeichert**: Präferenzen werden automatisch zwischen Sitzungen gespeichert
+- **Plot data**: Steuert, ob numerische Messwerte in Data gespeichert und geplottet werden
+- **Receive data**: Zeigt alle empfangenen Zeilen mit Zähler und verstrichener Zeit
 
 ## Erste Schritte
 
@@ -50,27 +54,33 @@ LIM Serial ist eine benutzerfreundliche Anwendung für serielle Kommunikation un
 # Erforderliche Pakete installieren
 pip install matplotlib pyserial PyYAML
 
-# lim_bal herunterladen und ausführen
-cd limbal00
+# LimBal00 klonen und ausführen
+git clone https://github.com/ChiaroZ80/LimBal00.git
+cd LimBal00
 python lim_bal.py
 ```
 
 ### Erste Schritte
 1. **Sprache**: Wählen Sie Ihre Sprache aus dem Sprachmenü
-2. **Verbindung**: Gehen Sie zum Konfigurationsreiter, wählen Sie Ihren seriellen Port und die Baudrate
-3. **Daten**: Wechseln Sie zum Datenreiter, um eingehende Daten zu sehen
-4. **Visualisierung**: Verwenden Sie den Diagrammreiter, um Diagramme aus Ihren Daten zu erstellen
+2. **Verbindung**: Wählen Sie in Configuration Port und Baudrate und verbinden Sie das Gerät
+3. **Empfang**: Sehen Sie Zeilen und verstrichene Zeit unter Receive data
+4. **Daten**: Aktivieren Sie Plot data, um numerische Messwerte in Data zu speichern
+5. **Visualisierung**: Erstellen Sie Diagramme oder senden Sie Befehle im Graph-Reiter
 
 ## Verwendung
 
 ### Konfigurationsreiter
 - **Modus**: Wählen Sie "Hardware" für echte Geräte, "Simuliert" zum Testen
 - **Port**: Wählen Sie Ihren seriellen Port (klicken Sie auf Aktualisieren, um die Liste zu aktualisieren)
-- **Baudrate**: Stellen Sie die Kommunikationsgeschwindigkeit ein (entsprechend Ihren Geräteeinstellungen)
-- **Verbinden**: Klicken Sie, um den Datenempfang zu starten
+- **Baudrate**: Kommunikationsgeschwindigkeit einstellen (Standard: 9600)
+- **Plot data**: Speichern numerischer Messwerte in Data ein- oder ausschalten
+- **SI / SIR / Zerar / Tara**: Den jeweiligen Gerätebefehl senden
+- **Send data**: Freien Text mit CRLF senden
+- **Receive data**: Alle Zeilen mit Zähler und Sekunden seit Verbindungsbeginn anzeigen
+- **Verbinden / Trennen**: Hardwareverbindung starten oder beenden
 
 ### Datenreiter
-- **Daten anzeigen**: Sehen Sie eingehende Daten in Echtzeit-Tabellenformat
+- **Daten anzeigen**: Zähler, Zeit und numerische Messwerte sehen, wenn Plot data aktiviert ist
 - **Daten speichern**: Exportieren Sie aktuelle Daten in eine Textdatei
 - **Daten laden**: Importieren Sie zuvor gespeicherte Datendateien
 - **Daten löschen**: Setzen Sie den aktuellen Datensatz zurück (mit Bestätigung)
@@ -84,6 +94,8 @@ python lim_bal.py
 - **Anpassen**: Erweitern Sie "Erweiterte Optionen anzeigen", um Farben, Marker, Aktualisierungsrate zu ändern
 - **Export**: Speichern Sie Ihre Diagramme als PNG-Bilder
 - **Steuerung**: Pausieren/Fortsetzen von Echtzeit-Updates jederzeit
+- **SI / SIR**: Gerätebefehle direkt im Graph-Reiter senden
+- **Stop**: Sendet `@` mit CRLF; die nächste Zeile wird nicht in Data gespeichert, bleibt aber unter Receive data sichtbar
 
 ### Sprachmenü
 - **Sprache wechseln**: Wählen Sie aus 5 verfügbaren Sprachen
@@ -95,10 +107,7 @@ python lim_bal.py
 Ihr serielles Gerät sollte Daten im einfachen Textformat senden:
 
 ```
-# Optionale Kopfzeile
-timestamp voltage current temperature
-
-# Datenzeilen (durch Leerzeichen oder Tab getrennt)
+# Numerische Datenzeilen (durch Leerzeichen oder Tab getrennt)
 1.0 3.3 0.125 25.4
 2.0 3.2 0.130 25.6
 3.0 3.4 0.122 25.2
@@ -107,7 +116,7 @@ timestamp voltage current temperature
 **Unterstützte Formate:**
 - Durch Leerzeichen oder Tab getrennte Spalten
 - Zahlen in beliebiger Spalte
-- Optionale Kopfzeile (wird automatisch erkannt)
+- Protokoll- und Statuszeilen ohne Messwerte werden nicht in Data gespeichert
 - Echtzeit-Streaming oder Batch-Datenladen
 
 ## Problembehandlung
@@ -145,4 +154,4 @@ Entwickelt von CBPF-LIM (Brasilianisches Zentrum für Physikforschung - Labor f�
 
 ---
 
-**LIM Serial** - Professionelle serielle Kommunikation und Datenvisualisierung leicht gemacht.
+**lim_bal** - Serielle Kommunikation und Datenvisualisierung.

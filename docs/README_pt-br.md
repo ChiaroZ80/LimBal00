@@ -1,4 +1,4 @@
-# LIM Serial - Comunicação Serial & Visualização de Dados
+# lim_bal - Comunicação Serial & Visualização de Dados
 
 **README em:** [English](../README.md) | [Português](README_pt-br.md) | [Español](README_es.md) | [Deutsch](README_de.md) | [Français](README_fr.md)
 
@@ -6,11 +6,11 @@
 
 ## Visão Geral
 
-LIM Serial é uma aplicação amigável para comunicação serial e visualização de dados em tempo real. Conecte-se a Arduino ou outros dispositivos seriais, colete dados e crie gráficos dinâmicos com recursos de visualização profissionais. Disponível em 5 idiomas com salvamento automático de preferências.
+lim_bal é uma aplicação desktop para comunicação serial e visualização de dados em tempo real. Conecte-se a Arduino ou outros dispositivos seriais, colete medidas numéricas e crie gráficos. A interface está disponível em inglês, português, espanhol, alemão e francês.
 
-![LIM Serial Screenshot](shot.png)
+![lim_bal screenshot](shot.png)
 
-![LIM Serial Screenshot](shot_stacked.png)
+![lim_bal screenshot](shot_stacked.png)
 
 ## Recursos
 
@@ -24,6 +24,9 @@ LIM Serial é uma aplicação amigável para comunicação serial e visualizaç�
 - Modo de simulação integrado para testes sem hardware
 - Detecção automática de portas com atualização em um clique
 - Compatibilidade completa com taxas de transmissão do Arduino IDE (300-2000000 bps)
+- Baudrate padrão: 9600
+- Comandos rápidos: SI, SIR, Zerar e Tara
+- Envio de texto personalizado com CRLF acrescentado
 
 ### 📊 **Visualização de Dados Profissional**
 - **Gráficos de Série Temporal**: Plote até 5 colunas de dados simultaneamente
@@ -31,13 +34,16 @@ LIM Serial é uma aplicação amigável para comunicação serial e visualizaç�
 - **Aparência Personalizável**: Escolha cores, marcadores e tipos de linha para cada série de dados
 - **Atualizações em Tempo Real**: Taxas de atualização configuráveis (1-30 FPS)
 - **Exportação**: Salve gráficos como imagens PNG de alta qualidade
-- **Controles Interativos**: Pause/retome coleta de dados, zoom e panorâmica
+- **Controles Interativos**: Pause/retome gráficos, zoom e panorâmica
+- **Controles do Dispositivo**: Botões SI, SIR e Stop na aba Gráfico
 
 ### 💾 **Gerenciamento Inteligente de Dados**
 - **Salvar/Carregar Manual**: Exporte e importe seus dados a qualquer momento
 - **Backup Automático**: Salvamento automático opcional com nomes de arquivo com timestamp
 - **Segurança de Dados**: Limpe dados com confirmações
 - **Todas as Configurações Salvas**: Preferências automaticamente preservadas entre sessões
+- **Plot data**: Escolha se medidas recebidas serão gravadas em Dados e usadas nos gráficos
+- **Receive data**: Veja todas as linhas recebidas, com contador e tempo desde a conexão
 
 ## Primeiros Passos
 
@@ -47,30 +53,42 @@ LIM Serial é uma aplicação amigável para comunicação serial e visualizaç�
 
 ### Instalação
 ```bash
-# Instalar pacotes necessários
-pip install matplotlib pyserial PyYAML
+# Clonar o repositório
+git clone https://github.com/ChiaroZ80/LimBal00.git
+cd LimBal00
 
-# Baixar e executar lim_bal
-cd limbal00
+# Criar e ativar um ambiente virtual
+python -m venv .venv
+# Prompt de Comando: .venv\Scripts\activate.bat
+# PowerShell: .\.venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
+
+# Instalar dependências e executar lim_bal
+python -m pip install matplotlib pyserial PyYAML
 python lim_bal.py
 ```
 
 ### Primeiros Passos
 1. **Idioma**: Escolha seu idioma no menu Idioma
-2. **Conexão**: Vá para a aba Configuração, selecione sua porta serial e taxa de transmissão
-3. **Dados**: Mude para a aba Dados para ver dados recebidos
-4. **Visualização**: Use a aba Gráfico para criar gráficos dos seus dados
+2. **Conexão**: Em Configuração, selecione a porta serial e o baudrate e conecte
+3. **Recepção**: Veja as linhas e o tempo decorrido em Receive data
+4. **Dados**: Ative Plot data para gravar medidas numéricas em Dados e usá-las nos gráficos
+5. **Visualização**: Use Gráfico para plotar ou enviar SI, SIR e Stop
 
 ## Como Usar
 
 ### Aba Configuração
 - **Modo**: Escolha "Hardware" para dispositivos reais, "Simulado" para testes
 - **Porta**: Selecione sua porta serial (clique em Atualizar para atualizar a lista)
-- **Taxa de Transmissão**: Defina a velocidade de comunicação (combine com as configurações do seu dispositivo)
-- **Conectar**: Clique para começar a receber dados
+- **Taxa de Transmissão**: Defina a velocidade (padrão: 9600; combine com o dispositivo)
+- **Plot data**: Ative/desative o registro dos valores recebidos em Dados
+- **SI / SIR / Zerar / Tara**: Envie o comando correspondente ao dispositivo
+- **Enviar dados**: Envie texto personalizado seguido de CRLF
+- **Receive data**: Veja todas as linhas recebidas com contador e tempo em segundos
+- **Conectar / Desconectar**: Inicie ou encerre a conexão de hardware
 
 ### Aba Dados
-- **Ver Dados**: Veja dados recebidos em formato de tabela em tempo real
+- **Ver Dados**: Veja medidas numéricas, contador e tempo quando Plot data está ativo
 - **Salvar Dados**: Exporte dados atuais para um arquivo de texto
 - **Carregar Dados**: Importe arquivos de dados salvos anteriormente
 - **Limpar Dados**: Redefina o conjunto de dados atual (com confirmação)
@@ -84,6 +102,8 @@ python lim_bal.py
 - **Personalizar**: Expanda "Mostrar Opções Avançadas" para alterar cores, marcadores, taxa de atualização
 - **Exportar**: Salve seus gráficos como imagens PNG
 - **Controle**: Pause/retome atualizações em tempo real a qualquer momento
+- **SI / SIR**: Envie comandos ao dispositivo pela aba Gráfico
+- **Stop**: Envia `@` seguido de CRLF; a próxima linha não entra em Dados, mas continua visível em Receive data
 
 ### Menu Idioma
 - **Trocar Idioma**: Selecione entre 5 idiomas disponíveis
@@ -95,10 +115,7 @@ python lim_bal.py
 Seu dispositivo serial deve enviar dados em formato de texto simples:
 
 ```
-# Linha de cabeçalho opcional
-timestamp voltage current temperature
-
-# Linhas de dados (separadas por espaço ou tab)
+# Linhas de dados numéricos (separadas por espaço ou tab)
 1.0 3.3 0.125 25.4
 2.0 3.2 0.130 25.6
 3.0 3.4 0.122 25.2
@@ -107,7 +124,7 @@ timestamp voltage current temperature
 **Formatos suportados:**
 - Colunas separadas por espaço ou tab
 - Números em qualquer coluna
-- Linha de cabeçalho opcional (será detectada automaticamente)
+- Linhas de protocolo/status sem medidas numéricas não são adicionadas a Dados
 - Streaming em tempo real ou carregamento de dados em lote
 
 ## Solução de Problemas
@@ -145,4 +162,4 @@ Desenvolvido por CBPF-LIM (Centro Brasileiro de Pesquisas Físicas - Laboratóri
 
 ---
 
-**LIM Serial** - Comunicação serial e visualização de dados profissionais simplificadas.
+**lim_bal** - Comunicação serial e visualização de dados.
