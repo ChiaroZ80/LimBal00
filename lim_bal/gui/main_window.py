@@ -22,6 +22,7 @@ class MainWindow:
         self.root.geometry(DEFAULT_GEOMETRY)
         self._connection_started_at = None
         self._received_line_count = 0
+        self._skip_data_line_after = None
 
         self._setup_serial_manager()
         self._create_menu()
@@ -95,7 +96,13 @@ class MainWindow:
             connection_callback=self._on_connection_changed,
             send_callback=self._send_data
         )
-        self.graph_tab = GraphTab(self.tab_control, self.data_tab, None)
+        self.graph_tab = GraphTab(
+            self.tab_control,
+            self.data_tab,
+            None,
+            send_callback=self._send_data,
+            stop_callback=self._stop_data_capture
+        )
 
 
         self.tab_control.add(self.config_tab.get_frame(), text=t("ui.tabs.configuration"))
@@ -106,9 +113,19 @@ class MainWindow:
         self.tab_control.pack(expand=1, fill="both")
 
     def _on_data_received(self, line):
-        self.root.after(0, self._display_received_data, line)
+        received_at = time.monotonic()
+        self.root.after(0, self._display_received_data, line, received_at)
 
-    def _display_received_data(self, line):
+    def _display_received_data(self, line, received_at=None):
+        if received_at is None:
+            received_at = time.monotonic()
+        skip_data_line = (
+            self._skip_data_line_after is not None
+            and received_at > self._skip_data_line_after
+        )
+        if skip_data_line:
+            self._skip_data_line_after = None
+
         elapsed = None
         if self._connection_started_at is not None:
             self._received_line_count += 1
@@ -117,7 +134,12 @@ class MainWindow:
                 f"{self._received_line_count} {elapsed:.3f} s | {line}"
             )
 
-        if self.config_tab.should_graph_data():
+        is_identification_response = 'I4 A "1126492643"' in line
+        if (
+            self.config_tab.should_graph_data()
+            and not skip_data_line
+            and not is_identification_response
+        ):
             if elapsed is None:
                 self.data_tab.add_data(line)
             else:
@@ -137,8 +159,15 @@ class MainWindow:
     def _on_connection_changed(self, connected, mode, port):
         is_hardware = connected and mode == t("ui.config_tab.mode_hardware")
         self._received_line_count = 0
+        self._skip_data_line_after = None
         self._connection_started_at = time.monotonic() if is_hardware else None
         self.config_tab.set_hardware_connection(is_hardware, port if is_hardware else "")
+        self.graph_tab.set_hardware_connection(is_hardware)
+
+    def _stop_data_capture(self):
+        self._skip_data_line_after = time.monotonic()
+        if not self._send_data("@"):
+            self._skip_data_line_after = None
 
     def _send_data(self, data):
         try:

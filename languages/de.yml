@@ -4,7 +4,7 @@ language:
 
 ui:
   main_window:
-    title: "LIM Serial - GUI"
+    title: "lim_bal"
     restart_required: "Um die Sprache zu aktualisieren, schließen und öffnen Sie die Anwendung erneut."
   
   tabs:
@@ -26,6 +26,8 @@ ui:
     send: "Daten senden"
     send_button: "Senden"
     receive: "Empfangene Daten"
+    zero_button: "Nullen"
+    tare_button: "Tarieren"
     connection_status: "🔗 Modus: {mode}\n📡 Port: {port}\n⚡ Baudrate: {baudrate} bps"
     virtual_connection_status: "🔗 Modus: {mode}\n🖥️  Virtueller Port: {port}\n⚡ Baudrate: {baudrate} bps (automatisch)\n📊 Status: Simulierte Daten generieren"
   

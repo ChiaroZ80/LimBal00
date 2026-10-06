@@ -1,4 +1,4 @@
-# LIM Serial - Serial Communication & Data Visualization
+# lim_bal - Serial Communication & Data Visualization
 
 **README in:** [English](README.md) | [Português](docs/README_pt-br.md) | [Español](docs/README_es.md) | [Deutsch](docs/README_de.md) | [Français](docs/README_fr.md)
 
@@ -50,9 +50,9 @@ LIM Serial is a user-friendly application for serial communication and real-time
 # Install required packages
 pip install matplotlib pyserial PyYAML
 
-# Download and run LIM Serial
-cd lim_term
-python lim_serial.py
+# Download and run lim_bal
+cd limbal00
+python lim_bal.py
 ```
 
 ### First Steps

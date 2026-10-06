@@ -9,9 +9,11 @@ from ..i18n import t, get_config_manager
 class GraphTab:
 
 
-    def __init__(self, parent, data_tab, open_options_callback):
+    def __init__(self, parent, data_tab, open_options_callback, send_callback=None, stop_callback=None):
         self.frame = ttk.Frame(parent)
         self.data_tab = data_tab
+        self.send_callback = send_callback
+        self.stop_callback = stop_callback
         self.graph_settings = {}
         self.options_visible = False
         self.is_paused = False
@@ -53,6 +55,30 @@ class GraphTab:
         self.save_button = ttk.Button(top_row, text=t("ui.graph_tab.save_png"), command=self._save_chart)
         self.save_button.pack(side="left", padx=(0,10))
 
+        self.si_button = ttk.Button(
+            top_row,
+            text="SI",
+            command=lambda: self._send_command("SI"),
+            state="disabled"
+        )
+        self.si_button.pack(side="left", padx=(0, 10))
+
+        self.sir_button = ttk.Button(
+            top_row,
+            text="SIR",
+            command=lambda: self._send_command("SIR"),
+            state="disabled"
+        )
+        self.sir_button.pack(side="left", padx=(0, 10))
+
+        self.stop_button = ttk.Button(
+            top_row,
+            text="Stop",
+            command=self._stop,
+            state="disabled"
+        )
+        self.stop_button.pack(side="left", padx=(0, 10))
+
 
         self.y_columns_frame = ttk.LabelFrame(self.frame, text=t("ui.graph_tab.y_columns"))
         self.y_columns_frame.grid(column=0, row=1, columnspan=4, padx=10, pady=5, sticky="ew")
@@ -85,6 +111,22 @@ class GraphTab:
         self.frame.columnconfigure(1, weight=1)
         self.frame.columnconfigure(2, weight=1)
         self.frame.columnconfigure(3, weight=1)
+
+    def set_hardware_connection(self, connected):
+        state = "normal" if connected else "disabled"
+        self.si_button.config(state=state)
+        self.sir_button.config(state=state)
+        self.stop_button.config(state=state)
+
+    def _send_command(self, command):
+        if self.send_callback:
+            self.send_callback(command)
+
+    def _stop(self):
+        if self.stop_callback:
+            self.stop_callback()
+        else:
+            self._send_command("@")
 
     def _create_options_widgets(self):
 

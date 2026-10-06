@@ -50,9 +50,9 @@ LIM Serial ist eine benutzerfreundliche Anwendung für serielle Kommunikation un
 # Erforderliche Pakete installieren
 pip install matplotlib pyserial PyYAML
 
-# LIM Serial herunterladen und ausführen
-cd lim_term
-python lim_serial.py
+# lim_bal herunterladen und ausführen
+cd limbal00
+python lim_bal.py
 ```
 
 ### Erste Schritte

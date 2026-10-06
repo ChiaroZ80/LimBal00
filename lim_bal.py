@@ -5,7 +5,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from lim_serial.gui import MainWindow
+from lim_bal.gui import MainWindow
 
 
 def main():

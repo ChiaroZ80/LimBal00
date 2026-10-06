@@ -80,32 +80,55 @@ class ConfigTab:
         self.info_frame.grid_remove()
 
 
-        self.connect_button = ttk.Button(self.frame, text=t("ui.config_tab.connect"), command=self._connect)
-        self.connect_button.grid(column=0, row=2, padx=10, pady=10, sticky="w")
+        self.connection_controls_frame = ttk.Frame(self.frame)
+        self.connection_controls_frame.grid(column=0, row=2, padx=10, pady=10, sticky="w")
+
+        self.connect_button = ttk.Button(
+            self.connection_controls_frame,
+            text=t("ui.config_tab.connect"),
+            command=self._connect
+        )
+        self.connect_button.pack(side="left", padx=(0, 10))
+
+        self.graph_data_var = tk.BooleanVar(value=True)
+        self.graph_data_checkbox = ttk.Checkbutton(
+            self.connection_controls_frame,
+            text=t("ui.config_tab.graph_data"),
+            variable=self.graph_data_var
+        )
+        self.graph_data_checkbox.pack(side="left", padx=(0, 10))
 
         self.si_button = ttk.Button(
-            self.frame,
+            self.connection_controls_frame,
             text="SI",
             command=self._send_si,
             state="disabled"
         )
-        self.si_button.grid(column=2, row=2, padx=10, pady=10, sticky="w")
+        self.si_button.pack(side="left", padx=(0, 10))
 
         self.sir_button = ttk.Button(
-            self.frame,
+            self.connection_controls_frame,
             text="SIR",
             command=self._send_sir,
             state="disabled"
         )
-        self.sir_button.grid(column=3, row=2, padx=10, pady=10, sticky="w")
+        self.sir_button.pack(side="left", padx=(0, 10))
 
-        self.graph_data_var = tk.BooleanVar(value=True)
-        self.graph_data_checkbox = ttk.Checkbutton(
-            self.frame,
-            text=t("ui.config_tab.graph_data"),
-            variable=self.graph_data_var
+        self.zero_button = ttk.Button(
+            self.connection_controls_frame,
+            text=t("ui.config_tab.zero_button"),
+            command=lambda: self._send_command("Z"),
+            state="disabled"
         )
-        self.graph_data_checkbox.grid(column=1, row=2, padx=10, pady=10, sticky="w")
+        self.zero_button.pack(side="left", padx=(0, 10))
+
+        self.tare_button = ttk.Button(
+            self.connection_controls_frame,
+            text=t("ui.config_tab.tare_button"),
+            command=lambda: self._send_command("T"),
+            state="disabled"
+        )
+        self.tare_button.pack(side="left")
 
         self.send_frame = ttk.LabelFrame(self.frame, text=t("ui.config_tab.send"))
         self.send_frame.grid(column=0, row=3, padx=10, pady=10, sticky="ew")
@@ -182,6 +205,10 @@ class ConfigTab:
         if self.send_callback:
             self.send_callback("SIR")
 
+    def _send_command(self, command):
+        if self.send_callback:
+            self.send_callback(command)
+
     def _on_mode_changed(self, event=None):
 
         mode = self.mode_combobox.get()
@@ -225,6 +252,8 @@ class ConfigTab:
             self.send_button.config(state="disabled")
             self.si_button.config(state="disabled")
             self.sir_button.config(state="disabled")
+            self.zero_button.config(state="disabled")
+            self.tare_button.config(state="disabled")
             if self.connection_callback:
                 self.connection_callback(False, mode, self.port_combobox.get())
             if self.mock_serial:
@@ -248,6 +277,8 @@ class ConfigTab:
                 self.send_button.config(state="normal")
                 self.si_button.config(state="normal")
                 self.sir_button.config(state="normal")
+                self.zero_button.config(state="normal")
+                self.tare_button.config(state="normal")
                 if self.connection_callback:
                     self.connection_callback(True, mode, port)
 
@@ -265,6 +296,8 @@ class ConfigTab:
                     self.send_button.config(state="disabled")
                     self.si_button.config(state="disabled")
                     self.sir_button.config(state="disabled")
+                    self.zero_button.config(state="disabled")
+                    self.tare_button.config(state="disabled")
                     if self.connection_callback:
                         self.connection_callback(False, mode, virtual_port)
 
