@@ -36,6 +36,13 @@ class SerialManager:
             self.serial_port.close()
         self.is_connected = False
 
+    def send(self, data):
+        if not self.is_connected or not self.serial_port:
+            raise ConnectionError("Não há uma conexão serial ativa")
+        if not hasattr(self.serial_port, 'write'):
+            raise ConnectionError("A conexão serial não permite envio de dados")
+        self.serial_port.write((data + "\r\n").encode("utf-8"))
+
     def _read_data(self):
         while self.serial_port and self.serial_port.is_open and not self._stop_reading:
             try:

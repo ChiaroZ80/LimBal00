@@ -8,9 +8,12 @@ from ..i18n import t, get_config_manager
 class ConfigTab:
 
 
-    def __init__(self, parent, serial_manager):
+    def __init__(self, parent, serial_manager, connection_callback=None, send_callback=None):
         self.frame = ttk.Frame(parent)
         self.serial_manager = serial_manager
+        self.connection_callback = connection_callback
+        self.send_callback = send_callback
+        self.hardware_connected = False
         self.mock_serial = None
         self.config_manager = get_config_manager()
 
@@ -80,8 +83,104 @@ class ConfigTab:
         self.connect_button = ttk.Button(self.frame, text=t("ui.config_tab.connect"), command=self._connect)
         self.connect_button.grid(column=0, row=2, padx=10, pady=10, sticky="w")
 
+        self.si_button = ttk.Button(
+            self.frame,
+            text="SI",
+            command=self._send_si,
+            state="disabled"
+        )
+        self.si_button.grid(column=2, row=2, padx=10, pady=10, sticky="w")
+
+        self.sir_button = ttk.Button(
+            self.frame,
+            text="SIR",
+            command=self._send_sir,
+            state="disabled"
+        )
+        self.sir_button.grid(column=3, row=2, padx=10, pady=10, sticky="w")
+
+        self.graph_data_var = tk.BooleanVar(value=True)
+        self.graph_data_checkbox = ttk.Checkbutton(
+            self.frame,
+            text=t("ui.config_tab.graph_data"),
+            variable=self.graph_data_var
+        )
+        self.graph_data_checkbox.grid(column=1, row=2, padx=10, pady=10, sticky="w")
+
+        self.send_frame = ttk.LabelFrame(self.frame, text=t("ui.config_tab.send"))
+        self.send_frame.grid(column=0, row=3, padx=10, pady=10, sticky="ew")
+
+        send_text_frame = ttk.Frame(self.send_frame)
+        send_text_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        send_text_frame.columnconfigure(0, weight=1)
+
+        self.send_text = tk.Text(send_text_frame, height=6, wrap="none")
+        self.send_text.grid(row=0, column=0, sticky="nsew")
+        send_vertical = ttk.Scrollbar(send_text_frame, orient="vertical", command=self.send_text.yview)
+        send_vertical.grid(row=0, column=1, sticky="ns")
+        send_horizontal = ttk.Scrollbar(send_text_frame, orient="horizontal", command=self.send_text.xview)
+        send_horizontal.grid(row=1, column=0, sticky="ew")
+        self.send_text.config(yscrollcommand=send_vertical.set, xscrollcommand=send_horizontal.set)
+
+        self.send_button = ttk.Button(
+            self.send_frame,
+            text=t("ui.config_tab.send_button"),
+            command=self._on_send,
+            state="disabled"
+        )
+        self.send_button.grid(row=0, column=1, padx=10, pady=5, sticky="s")
+        self.send_frame.columnconfigure(0, weight=1)
+
+        self.receive_frame = ttk.LabelFrame(self.frame, text=t("ui.config_tab.receive"))
+        self.receive_frame.grid(column=0, row=4, padx=10, pady=10, sticky="ew")
+
+        receive_text_frame = ttk.Frame(self.receive_frame)
+        receive_text_frame.pack(fill="x", padx=5, pady=5)
+        receive_text_frame.columnconfigure(0, weight=1)
+
+        self.receive_text = tk.Text(receive_text_frame, height=6, wrap="none", state="disabled")
+        self.receive_text.grid(row=0, column=0, sticky="nsew")
+        receive_vertical = ttk.Scrollbar(receive_text_frame, orient="vertical", command=self.receive_text.yview)
+        receive_vertical.grid(row=0, column=1, sticky="ns")
+        receive_horizontal = ttk.Scrollbar(receive_text_frame, orient="horizontal", command=self.receive_text.xview)
+        receive_horizontal.grid(row=1, column=0, sticky="ew")
+        self.receive_text.config(yscrollcommand=receive_vertical.set, xscrollcommand=receive_horizontal.set)
+
 
         self.frame.columnconfigure(0, weight=1)
+
+
+############################################################################
+    def set_hardware_connection(self, connected, port=""):
+        self.hardware_connected = connected
+        title = t("ui.config_tab.receive")
+        if connected and port:
+            title = f"{title} - {port}"
+        self.receive_frame.config(text=title)
+
+    def should_graph_data(self):
+        return self.graph_data_var.get()
+
+    def add_serial_data(self, line):
+        if not self.hardware_connected:
+            return
+        self.receive_text.config(state="normal")
+        self.receive_text.insert("end", line + "\n")
+        self.receive_text.see("end")
+        self.receive_text.config(state="disabled")
+
+    def _on_send(self):
+        data = self.send_text.get("1.0", "end-1c")
+        if data and self.send_callback and self.send_callback(data):
+            self.send_text.delete("1.0", "end")
+
+    def _send_si(self):
+        if self.send_callback:
+            self.send_callback("SI")
+
+    def _send_sir(self):
+        if self.send_callback:
+            self.send_callback("SIR")
 
     def _on_mode_changed(self, event=None):
 
@@ -123,6 +222,11 @@ class ConfigTab:
         if self.serial_manager.is_connected:
 
             self.serial_manager.disconnect()
+            self.send_button.config(state="disabled")
+            self.si_button.config(state="disabled")
+            self.sir_button.config(state="disabled")
+            if self.connection_callback:
+                self.connection_callback(False, mode, self.port_combobox.get())
             if self.mock_serial:
                 self.mock_serial.stop_data_generation()
                 self.mock_serial = None
@@ -141,6 +245,11 @@ class ConfigTab:
             if self.serial_manager.connect(port, baudrate):
                 self.connect_button.config(text=t("ui.config_tab.disconnect"))
                 self._show_connection_info(mode, port, baudrate)
+                self.send_button.config(state="normal")
+                self.si_button.config(state="normal")
+                self.sir_button.config(state="normal")
+                if self.connection_callback:
+                    self.connection_callback(True, mode, port)
 
         elif mode == t("ui.config_tab.mode_simulated"):
             try:
@@ -153,6 +262,11 @@ class ConfigTab:
                 if self.serial_manager.connect(self.mock_serial, DEFAULT_BAUDRATE):
                     self.connect_button.config(text=t("ui.config_tab.disconnect"))
                     self._show_connection_info(mode, virtual_port, DEFAULT_BAUDRATE)
+                    self.send_button.config(state="disabled")
+                    self.si_button.config(state="disabled")
+                    self.sir_button.config(state="disabled")
+                    if self.connection_callback:
+                        self.connection_callback(False, mode, virtual_port)
 
 
                     current_ports = list(self.port_combobox["values"])

@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import re
 import time
 from ..config import DEFAULT_GEOMETRY
 from ..core import SerialManager
@@ -19,6 +20,8 @@ class MainWindow:
         self.root = tk.Tk()
         self.root.title(t("ui.main_window.title"))
         self.root.geometry(DEFAULT_GEOMETRY)
+        self._connection_started_at = None
+        self._received_line_count = 0
 
         self._setup_serial_manager()
         self._create_menu()
@@ -85,8 +88,13 @@ class MainWindow:
         self.tab_control = ttk.Notebook(self.root)
 
 
-        self.config_tab = ConfigTab(self.tab_control, self.serial_manager)
         self.data_tab = DataTab(self.tab_control)
+        self.config_tab = ConfigTab(
+            self.tab_control,
+            self.serial_manager,
+            connection_callback=self._on_connection_changed,
+            send_callback=self._send_data
+        )
         self.graph_tab = GraphTab(self.tab_control, self.data_tab, None)
 
 
@@ -98,13 +106,49 @@ class MainWindow:
         self.tab_control.pack(expand=1, fill="both")
 
     def _on_data_received(self, line):
+        self.root.after(0, self._display_received_data, line)
 
-        self.data_tab.add_data(line)
+    def _display_received_data(self, line):
+        elapsed = None
+        if self._connection_started_at is not None:
+            self._received_line_count += 1
+            elapsed = time.monotonic() - self._connection_started_at
+            self.config_tab.add_serial_data(
+                f"{self._received_line_count} {elapsed:.3f} s | {line}"
+            )
+
+        if self.config_tab.should_graph_data():
+            if elapsed is None:
+                self.data_tab.add_data(line)
+            else:
+                measurements = re.findall(
+                    r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?",
+                    line
+                )
+                if measurements:
+                    self.data_tab.add_data(
+                        f"{self._received_line_count} {elapsed:.3f} {' '.join(measurements)}"
+                    )
 
 
     def _on_error(self, error_message):
+        self.root.after(0, self.data_tab.add_message, error_message)
 
-        self.data_tab.add_message(error_message)
+    def _on_connection_changed(self, connected, mode, port):
+        is_hardware = connected and mode == t("ui.config_tab.mode_hardware")
+        self._received_line_count = 0
+        self._connection_started_at = time.monotonic() if is_hardware else None
+        self.config_tab.set_hardware_connection(is_hardware, port if is_hardware else "")
+
+    def _send_data(self, data):
+        try:
+            if not self.config_tab.hardware_connected:
+                raise ConnectionError("Conecte uma porta no modo Hardware antes de enviar")
+            self.serial_manager.send(data)
+            return True
+        except Exception as error:
+            self.data_tab.add_message(t("ui.data_tab.send_error").format(error=error))
+            return False
 
     def run(self):
 

@@ -22,10 +22,16 @@ ui:
     baudrate_label: "Baudrate:"
     connect: "Conectar"
     disconnect: "Desconectar"
+    graph_data: "Graficar"
+    send: "Enviar datos"
+    send_button: "Enviar"
+    receive: "Datos recibidos"
     connection_status: "🔗 Modo: {mode}\n📡 Puerto: {port}\n⚡ Baudrate: {baudrate} bps"
     virtual_connection_status: "🔗 Modo: {mode}\n🖥️  Puerto Virtual: {port}\n⚡ Baudrate: {baudrate} bps (automático)\n📊 Estado: Generando datos simulados"
   
   data_tab:
+    sent: "Enviado: {data}"
+    send_error: "Error al enviar: {error}"
     save: "Guardar"
     load: "Cargar"
     clear: "Limpiar"

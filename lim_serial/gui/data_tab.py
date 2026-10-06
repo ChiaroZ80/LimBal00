@@ -18,7 +18,6 @@ class DataTab:
 
     def _create_widgets(self):
 
-
         text_frame = ttk.Frame(self.frame)
         text_frame.pack(expand=1, fill="both", padx=10, pady=10)
 
@@ -49,12 +48,16 @@ class DataTab:
         self.desligar_button = ttk.Button(self.frame, text=t("ui.data_tab.desligar"), command=self._on_desligar)
         self.desligar_button.pack(side="left", padx=10, pady=10)
 
+        self.desligar_button = ttk.Button(self.frame, text=t("ui.data_tab.desligar"), command=self._on_desligar)
+        self.desligar_button.pack(side="left", padx=10, pady=10)
+
         self.autosave_var = tk.BooleanVar(value=False)
         self.autosave_checkbox = ttk.Checkbutton(self.frame, text=t("ui.data_tab.autosave"), variable=self.autosave_var, command=self._on_autosave_toggle)
         self.autosave_checkbox.pack(side="left", padx=10, pady=10)
 
         self.autosave_file = None
         self.autosave_filename = None
+
     def _load_data(self):
 
         from tkinter import filedialog, messagebox
@@ -146,10 +149,10 @@ class DataTab:
 
 ##################################################################
     def _on_ligar(self):
-    	self.add_data("ligar")
+        self.add_data("ligar")
 
     def _on_desligar(self):
-    	self.add_data("desligar")
+        self.add_data("desligar")
 
     def add_data(self, line, save_to_history=True):
 
